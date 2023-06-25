@@ -41,8 +41,8 @@ func GetConnectionDB() (conn *pgxpool.Pool, err error) {
 					ticker.Stop()
 					timer.Stop()
 					logger.LogOperationSuccess(fmt.Sprintf(mainLiterals.LogConnDBSuccess, url))
+					return
 				}
-				return
 			}
 		}
 	}
