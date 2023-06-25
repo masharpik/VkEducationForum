@@ -14,11 +14,9 @@ FROM postgres:15.3-alpine3.18
 
 WORKDIR /app
 
-ENV POSTGRES_USER forum_user
-ENV POSTGRES_PASSWORD forum_pass
-ENV POSTGRES_DB forum_name
-
-ENV TZ Europe/Moscow
+ENV POSTGRES_USER=forum_user
+ENV POSTGRES_PASSWORD=forum_pass
+ENV POSTGRES_DB=forum_name
 
 COPY db/db.sql /docker-entrypoint-initdb.d/
 
