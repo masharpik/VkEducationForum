@@ -32,7 +32,7 @@ dbclean:
 dbrerun: dbdown dbclean dbrun
 
 servrun:
-	go run forum/main.go >> perflog.txt
+	go run forum/main.go
 
 functests:
 	./technopark-dbms-forum func -u http://localhost:${port}/api -r report.html

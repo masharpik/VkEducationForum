@@ -231,8 +231,8 @@ CREATE INDEX IF NOT EXISTS idx_posts_id ON posts USING hash (id);
 CREATE INDEX IF NOT EXISTS idx_posts_id_btree ON posts using btree (id);
 CREATE INDEX IF NOT EXISTS post_thread ON posts USING hash (thread);
 CREATE INDEX IF NOT EXISTS post_parent ON posts (thread, id, subpath(num, 0, 1), parent);
-CREATE INDEX IF NOT EXISTS post_path_1_path ON posts (subpath(num, 0, 1), path);
-CREATE INDEX IF NOT EXISTS post_thread_path ON posts (thread, path);
+CREATE INDEX IF NOT EXISTS post_path_1_path ON posts (subpath(num, 0, 1), num);
+CREATE INDEX IF NOT EXISTS post_thread_path ON posts (thread, num);
 
 CREATE INDEX idx_posts_created ON posts using btree (created);
 CREATE INDEX idx_posts_path ON posts using btree (num);

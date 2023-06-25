@@ -34,7 +34,15 @@ func GetConnectionDB() (conn *pgxpool.Pool, err error) {
 			return
 		case <-ticker.C:
 			conn, err = pgxpool.New(context.Background(), url)
+
 			if err == nil {
+				err = conn.Ping(context.Background())
+				if err != nil {
+					ticker.Stop()
+					timer.Stop()
+					return nil, err
+				}
+
 				ticker.Stop()
 				timer.Stop()
 				logger.LogOperationSuccess(fmt.Sprintf(mainLiterals.LogConnDBSuccess, url))
