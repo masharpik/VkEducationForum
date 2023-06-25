@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS posts(
    forum CITEXT REFERENCES forums (slug) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
    thread INT REFERENCES threads (id) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
    created TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-   num ltree
+   num int[] DEFAULT ARRAY []::INTEGER[]
 );
 
 CREATE OR REPLACE FUNCTION update_is_edited() RETURNS TRIGGER AS $$
@@ -57,21 +57,8 @@ EXECUTE PROCEDURE update_is_edited();
 CREATE OR REPLACE FUNCTION update_parent()
 RETURNS TRIGGER AS $$
 DECLARE
-  parent_post RECORD;
 BEGIN
-  IF NEW.parent IS NULL THEN
-    NEW.num = lpad(NEW.id::text, 10, '0');
-    RETURN NEW;
-  END IF;
-
-  BEGIN
-    SELECT num INTO parent_post FROM posts WHERE id = NEW.parent;
-    NEW.num = ltree2text(parent_post.num) || '.' || lpad(NEW.id::text, 10, '0');
-  EXCEPTION WHEN OTHERS THEN
-    RAISE NOTICE 'Error: %', SQLERRM;
-    RETURN NULL;
-  END;
-
+  NEW.num = (SELECT num FROM posts WHERE id = NEW.parent) || NEW.id;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -230,8 +217,8 @@ CREATE INDEX IF NOT EXISTS idx_threads_author ON threads USING hash (author);
 CREATE INDEX IF NOT EXISTS idx_posts_id ON posts USING hash (id);
 CREATE INDEX IF NOT EXISTS idx_posts_id_btree ON posts using btree (id);
 CREATE INDEX IF NOT EXISTS post_thread ON posts USING hash (thread);
-CREATE INDEX IF NOT EXISTS post_parent ON posts (thread, id, subpath(num, 0, 1), parent);
-CREATE INDEX IF NOT EXISTS post_path_1_path ON posts (subpath(num, 0, 1), num);
+CREATE INDEX IF NOT EXISTS post_parent ON posts (thread, id, (num[1]), parent);
+CREATE INDEX IF NOT EXISTS post_path_1_path ON posts ((num[1]), num);
 CREATE INDEX IF NOT EXISTS post_thread_path ON posts (thread, num);
 
 CREATE INDEX idx_posts_created ON posts using btree (created);

@@ -320,7 +320,7 @@ func (repo Repository) GetPostsParentTreeByThreadId(id, since, limit int, sort s
 	if since == 0 {
 		getMessagesQuery = fmt.Sprintf(`
 WITH root_posts AS (
-	SELECT id, num 
+	SELECT id  
 	FROM posts 
 	WHERE thread = $1 AND parent IS NULL 
 	ORDER BY id %s 
@@ -329,10 +329,9 @@ WITH root_posts AS (
 
 
 SELECT p.id, COALESCE(parent, 0), author, message, isEdited, forum, thread, created 
-FROM root_posts rp 
-	LEFT JOIN posts p 
-		ON rp.id = p.parent OR p.num <@ rp.num 
-ORDER BY subpath(p.num, 0, 1) %s, p.num ASC;
+FROM posts p 
+WHERE num[1] IN (SELECT id FROM root_posts)
+ORDER BY num[1] %s, num ASC;
 `, order, order)
 	} else {
 		oper := ">"
@@ -340,16 +339,19 @@ ORDER BY subpath(p.num, 0, 1) %s, p.num ASC;
 			oper = "<"
 		}
 		getMessagesQuery = fmt.Sprintf(`
-WITH since_table AS (
-    SELECT subpath(num, 0, 1)::text::integer AS num FROM posts WHERE thread = $1 AND id = $2 LIMIT 1
-), parent_table AS (
-    SELECT id, num FROM posts WHERE thread = $1 AND parent IS NULL AND id %s (SELECT num FROM since_table) ORDER BY id %s LIMIT $3
+WITH root_posts AS (
+	SELECT id  
+	FROM posts 
+	WHERE thread = $1 AND parent IS NULL AND num[1] %s (SELECT num[1] FROM posts WHERE id = $2)
+	ORDER BY id %s 
+	LIMIT $3 
 )
 
-SELECT p.id, COALESCE(parent, 0) AS parent, author, message, isedited, forum, thread, created 
-FROM parent_table pt
-	LEFT JOIN posts p ON p.num <@ pt.num
-ORDER BY subpath(p.num, 0, 1) %s, p.num ASC
+
+SELECT p.id, COALESCE(parent, 0), author, message, isEdited, forum, thread, created 
+FROM posts p 
+WHERE num[1] IN (SELECT id FROM root_posts)
+ORDER BY num[1] %s, num ASC;
 `, oper, order, order)
 	}
 
