@@ -236,13 +236,13 @@ func (repo Repository) UpdateThreadBySlug(slug string, title, message string) (t
 	var messageNull bool = (message == "")
 	values := make([]interface{}, 0)
 	if !titleNull && !messageNull {
-		updateMsgQuery = "UPDATE threads SET title = $1, message = $2  WHERE slug = $3 RETURNING id, COALESCE(parent, 0), author, message, isEdited, forum, thread, created;"
+		updateMsgQuery = "UPDATE threads SET title = $1, message = $2  WHERE slug = $3 RETURNING id, COALESCE(slug, '') AS slug, title, author, forum, message, votes, created;"
 		values = append(values, title, message, slug)
 	} else if !titleNull {
-		updateMsgQuery = "UPDATE threads SET title = $1 WHERE slug = $2 RETURNING id, COALESCE(parent, 0), author, message, isEdited, forum, thread, created;"
+		updateMsgQuery = "UPDATE threads SET title = $1 WHERE slug = $2 RETURNING id, COALESCE(slug, '') AS slug, title, author, forum, message, votes, created;"
 		values = append(values, title, slug)
 	} else if !messageNull {
-		updateMsgQuery = "UPDATE threads SET message = $1 WHERE slug = $2 RETURNING id, COALESCE(parent, 0), author, message, isEdited, forum, thread, created;"
+		updateMsgQuery = "UPDATE threads SET message = $1 WHERE slug = $2 RETURNING id, COALESCE(slug, '') AS slug, title, author, forum, message, votes, created;"
 		values = append(values, message, slug)
 	} else {
 		updateMsgQuery = "SELECT id, COALESCE(slug, '') AS slug, title, author, forum, message, votes, created FROM threads WHERE slug = $1;"
@@ -281,13 +281,13 @@ func (repo Repository) UpdateThreadById(id int, title, message string) (thread t
 	var messageNull bool = (message == "")
 	values := make([]interface{}, 0)
 	if !titleNull && !messageNull {
-		updateMsgQuery = "UPDATE threads SET title = $1, message = $2  WHERE id = $3 RETURNING id, COALESCE(parent, 0), author, message, isEdited, forum, thread, created;"
+		updateMsgQuery = "UPDATE threads SET title = $1, message = $2  WHERE id = $3 RETURNING id, COALESCE(slug, '') AS slug, title, author, forum, message, votes, created;"
 		values = append(values, title, message, id)
 	} else if !titleNull {
-		updateMsgQuery = "UPDATE threads SET title = $1  WHERE id = $2 RETURNING id, COALESCE(parent, 0), author, message, isEdited, forum, thread, created;"
+		updateMsgQuery = "UPDATE threads SET title = $1  WHERE id = $2 RETURNING id, COALESCE(slug, '') AS slug, title, author, forum, message, votes, created;"
 		values = append(values, title, id)
 	} else if !messageNull {
-		updateMsgQuery = "UPDATE threads SET message = $1  WHERE id = $2 RETURNING id, COALESCE(parent, 0), author, message, isEdited, forum, thread, created;"
+		updateMsgQuery = "UPDATE threads SET message = $1  WHERE id = $2 RETURNING id, COALESCE(slug, '') AS slug, title, author, forum, message, votes, created;"
 		values = append(values, message, id)
 	} else {
 		updateMsgQuery = "SELECT id, COALESCE(slug, '') AS slug, title, author, forum, message, votes, created FROM threads WHERE id = $1;"
