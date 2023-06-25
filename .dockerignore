@@ -1,0 +1,9 @@
+.git
+.gitignore
+main
+swagger.yml
+docker-compose.yml
+technopark-dbms-forum
+report.html
+*.txt
+*.gz

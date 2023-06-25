@@ -1,0 +1,414 @@
+definitions:
+    Error:
+        description: Кастомная ошибка
+        properties:
+            message:
+                description: Текстовое описание ошибки.
+                example: 'Can''t find user with id #42'
+                readOnly: true
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: github.com/masharpik/ForumVKEducation/utils/errors
+    Forum:
+        description: Информация о форуме
+        properties:
+            posts:
+                description: Общее кол-во сообщений в данном форуме.
+                example: 200000
+                format: int64
+                readOnly: true
+                type: integer
+                x-go-name: Posts
+            slug:
+                description: Человекопонятный URL (https://ru.wikipedia.org/wiki/%D0%A1%D0%B5%D0%BC%D0%B0%D0%BD%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_URL), уникальное поле.
+                example: pirate-stories
+                format: identity
+                pattern: ^(\d|\w|-|_)*(\w|-|_)(\d|\w|-|_)*$
+                type: string
+                x-go-name: Slug
+            threads:
+                description: Общее кол-во ветвей обсуждения в данном форуме.
+                example: 200
+                format: int64
+                readOnly: true
+                type: integer
+                x-go-name: Threads
+            title:
+                description: Название форума.
+                example: Pirate stories
+                type: string
+                x-go-name: Title
+            user:
+                description: Nickname пользователя, который отвечает за форум.
+                example: j.sparrow
+                format: identity
+                type: string
+                x-go-name: User
+        required:
+            - title
+            - user
+            - slug
+        type: object
+        x-go-package: github.com/masharpik/ForumVKEducation/app/forums/utils/structs
+    Post:
+        description: Сообщение внутри ветки обсуждения на форуме
+        properties:
+            author:
+                description: Автор, написавший данное сообщение.
+                example: j.sparrow
+                format: identity
+                type: string
+                x-go-name: Author
+            created:
+                description: Дата создания сообщения на форуме.
+                example: "2017-01-01T00:00:00.000Z"
+                format: date-time
+                type: string
+                x-go-name: Created
+            forum:
+                description: Идентификатор форума (slug) данного сообещния.
+                format: identity
+                readOnly: true
+                type: string
+                x-go-name: Forum
+            id:
+                description: Идентификатор данного сообщения.
+                format: int64
+                readOnly: true
+                type: integer
+                x-go-name: Id
+            isEdited:
+                description: Истина, если данное сообщение было изменено.
+                readOnly: true
+                type: boolean
+                x-go-name: IsEdited
+            message:
+                description: Собственно сообщение форума.
+                example: We should be afraid of the Kraken.
+                format: text
+                type: string
+                x-go-name: Message
+            parent:
+                description: Идентификатор родительского сообщения (0 - корневое сообщение обсуждения).
+                format: int64
+                type: integer
+                x-go-name: Parent
+            thread:
+                description: Идентификатор ветви (id) обсуждения данного сообещния.
+                format: int32
+                readOnly: true
+                type: integer
+                x-go-name: Thread
+        required:
+            - author
+        type: object
+        x-go-package: github.com/masharpik/ForumVKEducation/app/posts/utils/structs
+    PostFull:
+        description: Полная информация о сообщении, включая связанные объекты
+        properties:
+            author:
+                $ref: '#/definitions/User'
+            forum:
+                $ref: '#/definitions/Forum'
+            post:
+                $ref: '#/definitions/Post'
+            thread:
+                $ref: '#/definitions/Thread'
+        type: object
+        x-go-package: github.com/masharpik/ForumVKEducation/app/posts/utils/structs
+    Posts:
+        description: |-
+            easyjson:json
+            Список сообщений в ветке обсуждения
+        items:
+            $ref: '#/definitions/Post'
+        type: array
+        x-go-package: github.com/masharpik/ForumVKEducation/app/posts/utils/structs
+    Status:
+        description: Описывает данные о базе данных
+        properties:
+            forum:
+                description: Кол-во разделов в базе данных.
+                example: 100
+                format: int32
+                type: integer
+                x-go-name: Forum
+            post:
+                description: Кол-во сообщений в базе данных.
+                example: 1000000
+                format: int64
+                type: integer
+                x-go-name: Post
+            thread:
+                description: Кол-во веток обсуждения в базе данных.
+                example: 1000
+                format: int32
+                type: integer
+                x-go-name: Thread
+            user:
+                description: Кол-во пользователей в базе данных.
+                example: 1000
+                format: int32
+                type: integer
+                x-go-name: User
+        required:
+            - user
+            - forum
+            - thread
+            - post
+        type: object
+        x-go-package: github.com/masharpik/ForumVKEducation/app/service/utils/structs
+    Thread:
+        description: Ветка обсуждения на форуме
+        properties:
+            author:
+                description: Пользователь, создавший данную ветку обсуждения.
+                example: j.sparrow
+                format: identity
+                type: string
+                x-go-name: Author
+            created:
+                description: Дата создания ветки на форуме.
+                example: "2017-01-01T00:00:00.000Z"
+                format: date-time
+                type: string
+                x-go-name: Created
+            forum:
+                description: Форум, в котором расположена данная ветка обсуждения.
+                example: pirate-stories
+                format: identity
+                type: string
+                x-go-name: Forum
+            id:
+                description: Идентификатор ветки обсуждения.
+                example: 42
+                format: int32
+                readOnly: true
+                type: integer
+                x-go-name: Id
+            message:
+                description: Описание ветки обсуждения.
+                example: An urgent need to reveal the hiding place of Davy Jones. Who is willing to help in this matter?
+                format: text
+                type: string
+                x-go-name: Message
+            slug:
+                description: |-
+                    Человекопонятный URL (https://ru.wikipedia.org/wiki/%D0%A1%D0%B5%D0%BC%D0%B0%D0%BD%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_URL).
+                    В данной структуре slug опционален.
+                example: jones-cache
+                format: identity
+                pattern: ^(\d|\w|-|_)*(\w|-|_)(\d|\w|-|_)*$
+                type: string
+                x-go-name: Slug
+            title:
+                description: Заголовок ветки обсуждения.
+                example: Davy Jones cache
+                type: string
+                x-go-name: Title
+            votes:
+                description: Кол-во голосов непосредственно за данное сообщение форума.
+                example: 34
+                format: int32
+                readOnly: true
+                type: integer
+                x-go-name: Votes
+        required:
+            - title
+            - author
+            - forum
+        type: object
+        x-go-package: github.com/masharpik/ForumVKEducation/app/threads/utils/structs
+    ThreadUpdate:
+        description: |-
+            Данные для обновления ветки обсуждения на форуме
+            Пустые параметры остаются без изменений
+        properties:
+            message:
+                description: Описание ветки обсуждения.
+                example: An urgent need to reveal the hiding place of Davy Jones. Who is willing to help in this matter?
+                format: text
+                type: string
+                x-go-name: Message
+            title:
+                description: Заголовок ветки обсуждения.
+                example: Davy Jones cache
+                type: string
+                x-go-name: Title
+        type: object
+        x-go-package: github.com/masharpik/ForumVKEducation/app/threads/utils/structs
+    Threads:
+        description: |-
+            easyjson:json
+            Список веток обсуждения на форуме
+        items:
+            $ref: '#/definitions/Thread'
+        type: array
+        x-go-package: github.com/masharpik/ForumVKEducation/app/threads/utils/structs
+    User:
+        description: Информация о пользователе
+        properties:
+            about:
+                description: Описание пользователя.
+                example: This is the day you will always remember as the day that you almost caught Captain Jack Sparrow!
+                format: text
+                type: string
+                x-go-name: About
+            email:
+                description: Почтовый адрес пользователя (уникальное поле).
+                example: captaina@blackpearl.sea
+                format: email
+                type: string
+                x-go-name: Email
+            fullname:
+                description: Полное имя пользователя.
+                example: Captain Jack Sparrow
+                type: string
+                x-go-name: Fullname
+            nickname:
+                description: |-
+                    Имя пользователя (уникальное поле).
+                    Данное поле допускает только латиницу, цифры и знак подчеркивания.
+                    Сравнение имени регистронезависимо.
+                example: j.sparrow
+                format: identity
+                readOnly: true
+                type: string
+                x-go-name: Nickname
+        required:
+            - fullname
+        type: object
+        x-go-package: github.com/masharpik/ForumVKEducation/app/users/utils/structs
+    UserUpdate:
+        description: Информация о пользователе для обновления
+        properties:
+            about:
+                description: Описание пользователя.
+                example: This is the day you will always remember as the day that you almost caught Captain Jack Sparrow!
+                format: text
+                type: string
+                x-go-name: About
+            email:
+                description: Почтовый адрес пользователя (уникальное поле).
+                example: captaina@blackpearl.sea
+                format: email
+                type: string
+                x-go-name: Email
+            fullname:
+                description: Полное имя пользователя.
+                example: Captain Jack Sparrow
+                type: string
+                x-go-name: Fullname
+        required:
+            - fullname
+        type: object
+        x-go-package: github.com/masharpik/ForumVKEducation/app/users/utils/structs
+    Users:
+        description: |-
+            easyjson:json
+            Список пользователей
+        items:
+            $ref: '#/definitions/User'
+        type: array
+        x-go-package: github.com/masharpik/ForumVKEducation/app/users/utils/structs
+    Voice:
+        format: int32
+        type: integer
+        x-go-package: github.com/masharpik/ForumVKEducation/app/forums/utils/literals
+    Vote:
+        description: Информация о голосовании пользователя
+        properties:
+            nickname:
+                description: Идентификатор пользователя.
+                format: identity
+                type: string
+                x-go-name: Nickname
+            voice:
+                $ref: '#/definitions/Voice'
+        required:
+            - nickname
+            - voice
+        type: object
+        x-go-package: github.com/masharpik/ForumVKEducation/app/forums/utils/structs
+paths:
+    /user/{nickname}/create:
+        post:
+            description: Создание нового пользователя в базе данных.
+            operationId: userCreate
+            parameters:
+                - description: Идентификатор пользователя.
+                  in: path
+                  name: nickname
+                  required: true
+                  type: string
+                - description: Данные пользовательского профиля.
+                  in: body
+                  name: profile
+                  required: true
+                  schema:
+                    $ref: '#/definitions/User'
+                    description: Данные пользовательского профиля.
+                    type: object
+            responses:
+                "201":
+                    description: Пользователь успешно создан.
+                    schema:
+                        $ref: '#/definitions/User'
+                "409":
+                    description: Пользователь уже присутсвует в базе данных.
+                    schema:
+                        $ref: '#/definitions/Users'
+            summary: Создание нового пользователя
+    /user/{nickname}/profile:
+        get:
+            description: Получение информации о пользователе форума по его имени.
+            operationId: userGetOne
+            parameters:
+                - description: Идентификатор пользователя.
+                  in: path
+                  name: nickname
+                  required: true
+                  type: string
+            responses:
+                "200":
+                    description: Информация о пользователе.
+                    schema:
+                        $ref: '#/definitions/User'
+                "404":
+                    description: Пользователь отсутсвует в системе.
+                    schema:
+                        $ref: '#/definitions/Error'
+            summary: Получение информации о пользователе
+        post:
+            description: Изменение информации в профиле пользователя.
+            operationId: userUpdate
+            parameters:
+                - description: Идентификатор пользователя.
+                  in: path
+                  name: nickname
+                  required: true
+                  type: string
+                - description: Изменения профиля пользователя.
+                  in: body
+                  name: profile
+                  required: true
+                  schema:
+                    $ref: '#/definitions/UserUpdate'
+                    description: Изменения профиля пользователя.
+                    type: object
+            responses:
+                "200":
+                    description: Актуальная информация о пользователе после изменения профиля.
+                    schema:
+                        $ref: '#/definitions/User'
+                "404":
+                    description: Пользователь отсутсвует в системе.
+                    schema:
+                        $ref: '#/definitions/Error'
+                "409":
+                    description: Новые данные профиля пользователя конфликтуют с имеющимися пользователями.
+                    schema:
+                        $ref: '#/definitions/Error'
+            summary: Изменение данных о пользователе
+swagger: "2.0"
