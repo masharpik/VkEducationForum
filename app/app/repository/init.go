@@ -3,7 +3,6 @@ package initRepository
 import (
 	"context"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -12,13 +11,13 @@ import (
 )
 
 func loadConfigUrl() string {
-	host := os.Getenv("PQ_APP_HOST")
-	port := os.Getenv("PQ_APP_PORT")
-	user := os.Getenv("PQ_APP_USER")
-	pass := os.Getenv("PQ_APP_PASS")
-	name := os.Getenv("PQ_APP_NAME")
+	// host := os.Getenv("PQ_APP_HOST")
+	// port := os.Getenv("PQ_APP_PORT")
+	// user := os.Getenv("PQ_APP_USER")
+	// pass := os.Getenv("PQ_APP_PASS")
+	// name := os.Getenv("PQ_APP_NAME")
 
-	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s", user, pass, host, port, name)
+	return "postgres://forum_user:forum_pass@localhost:5432/forum_name"
 }
 
 func GetConnectionDB() (conn *pgxpool.Pool, err error) {

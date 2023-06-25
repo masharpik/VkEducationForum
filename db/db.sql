@@ -26,8 +26,6 @@ CREATE TABLE IF NOT EXISTS threads(
    votes INT DEFAULT 0,
    created timestamp with time zone DEFAULT NOW()
 );
-CREATE INDEX idx_threads_forum ON threads (forum);
-CREATE INDEX idx_threads_created ON threads (created);
 
 CREATE TABLE IF NOT EXISTS posts(
    id SERIAL PRIMARY KEY,
@@ -40,12 +38,6 @@ CREATE TABLE IF NOT EXISTS posts(
    created TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
    num ltree
 );
-CREATE INDEX idx_posts_forum ON posts (forum);
-CREATE INDEX idx_posts_thread ON posts (thread);
-CREATE INDEX idx_posts_parent ON posts (parent);
-CREATE INDEX idx_gist_posts_num ON posts USING GIST (num);
-CREATE INDEX idx_posts_num ON posts USING BTREE (num);
-CREATE INDEX idx_posts_created ON posts (created);
 
 CREATE OR REPLACE FUNCTION update_is_edited() RETURNS TRIGGER AS $$
 BEGIN
@@ -96,8 +88,6 @@ CREATE TABLE votes(
   vote INT NOT NULL,
   CONSTRAINT unique_thread_nickname UNIQUE (thread, nickname)
 );
-CREATE INDEX idx_votes_thread ON votes (thread);
-CREATE INDEX idx_votes_nickname ON votes (nickname);
 
 -- ТРИГГЕР НА ДОБАВЛЕНИЕ ГОЛОСА - ИЗМЕНЯЕТСЯ СЧЕТЧИК КОЛИЧЕСТВА ГОЛОСОВ В ВЕТКЕ
 CREATE OR REPLACE FUNCTION increase_vote_count() RETURNS TRIGGER AS $$
@@ -233,3 +223,23 @@ FOR EACH ROW EXECUTE PROCEDURE update_user_forum();
 CREATE TRIGGER trigger_insert_posts
 AFTER INSERT ON posts
 FOR EACH ROW EXECUTE PROCEDURE update_user_forum();
+
+CREATE INDEX IF NOT EXISTS idx_threads_slug ON threads USING hash (slug);
+CREATE INDEX IF NOT EXISTS idx_threads_author ON threads USING hash (author);
+
+CREATE INDEX IF NOT EXISTS idx_posts_id ON posts USING hash (id);
+CREATE INDEX IF NOT EXISTS idx_posts_id_btree ON posts using btree (id);
+CREATE INDEX IF NOT EXISTS post_thread ON posts USING hash (thread);
+CREATE INDEX IF NOT EXISTS post_parent ON posts (thread, id, subpath(num, 0, 1), parent);
+CREATE INDEX IF NOT EXISTS post_path_1_path ON posts (subpath(num, 0, 1), path);
+CREATE INDEX IF NOT EXISTS post_thread_path ON posts (thread, path);
+
+CREATE INDEX idx_posts_created ON posts using btree (created);
+CREATE INDEX idx_posts_path ON posts using btree (num);
+
+CREATE INDEX idx_forums_slug ON forums USING HASH (slug);
+CREATE INDEX idx_threads_id_hash ON threads USING hash (id);
+CREATE INDEX idx_threads_created ON threads USING btree (created);
+CREATE INDEX idx_users_nickname ON users USING HASH (nickname);
+CREATE INDEX idx_users_nickname_btree ON users USING btree (nickname varchar_pattern_ops);
+CREATE INDEX idx_users_email ON users USING HASH (email);

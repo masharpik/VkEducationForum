@@ -27,12 +27,12 @@ dbdown:
 	docker-compose down
 
 dbclean:
-	docker volume rm forumvkeducation_postgres_data
+	docker volume rm vkeducationforum_postgres_data
 
 dbrerun: dbdown dbclean dbrun
 
 servrun:
-	go run forum/main.go
+	go run forum/main.go >> perflog.txt
 
 functests:
 	./technopark-dbms-forum func -u http://localhost:${port}/api -r report.html
